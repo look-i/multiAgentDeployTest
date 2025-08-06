@@ -3,13 +3,13 @@
     "api/index.py": {
       "maxDuration": 30,
       "includeFiles": "src/**",
-      "excludeFiles": "**/__pycache__/**"
+      "excludeFiles": "**/site-packages/{torch,tensorflow,transformers,pandas,numpy,gradio}/**,**/__pycache__/**"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "api/index.py"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
   ]
 }
