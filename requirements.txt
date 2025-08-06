@@ -1,0 +1,12 @@
+# 核心框架
+agentscope==0.1.6
+
+# Web服务框架
+fastapi
+uvicorn[standard]
+
+# 环境配置
+python-dotenv
+
+# LLM
+openai
