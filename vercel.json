@@ -3,7 +3,7 @@
     "api/index.py": {
       "maxDuration": 30,
       "includeFiles": "src/**",
-      "excludeFiles": "**/__pycache__/**,**/site-packages/gradio/**,**/site-packages/boto3/**,**/site-packages/botocore/**,**/site-packages/google/**,**/site-packages/pymongo/**,**/site-packages/redis/**,**/site-packages/docker/**,**/site-packages/dashscope/**,**/site-packages/zhipuai/**,**/site-packages/ollama/**,**/site-packages/cos_python_sdk_v5/**,**/site-packages/minio/**,**/site-packages/flask/**,**/site-packages/werkzeug/**,**/site-packages/eventlet/**,**/site-packages/PIL/**,**/site-packages/torch/**,**/site-packages/tensorflow/**"
+      "excludeFiles": "**/__pycache__/**"
     }
   },
   "routes": [
