@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     moonshot_base_url: str = Field(default="https://api.moonshot.cn/v1", env="MOONSHOT_BASE_URL")
     moonshot_model: str = Field(default="kimi-k2-0711-preview", env="MOONSHOT_MODEL")
     
-    # 安全配置
+    # 安全配置（必须通过环境变量注入，生产环境请使用足够随机的字符串）
     secret_key: str = Field(..., env="SECRET_KEY")
     access_token_expire_minutes: int = Field(default=30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     
