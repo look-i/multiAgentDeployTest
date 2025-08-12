@@ -3,7 +3,7 @@
 1、 所有终端命令，请向我提供可直接粘贴运行的命令
 2、 所有终端命令，由我自己手动执行
 3、 智能体接入LLM的url地址为：https://api.moonshot.cn/v1
-4、 LLM使用的api key为：sk-9egzBCFTSSehwD0MfvAldbbmf6EAnxTZgmR5apuRB12JQANE（但是实际上是从环境变量读取）
+4、 LLM使用的api key为：sk-YnZ6AmSGHxyau9OHQJGpRmSBoLcMHQ8XrP5oPFfBz7dy4pVC（但是实际上是从环境变量读取）
 5、 LLM模型为：kimi-k2-0711-preview
 6、 AgentScope版本号为0.1.6，请按照最新版本的代码规范来写代码。如果你不知道或者不确定最新版本的代码规范，立即停止编码，并告知我，让我给你提供代码规范参考
 7、 以下是部分代码规范示例：
@@ -301,3 +301,5 @@ agentscope.init(
 )
 
 # ...
+
+8、项目启动时，创建一个“操作跟踪文档”，在此以后，每次对话前需要阅读“操作跟踪文档”再进行思考
