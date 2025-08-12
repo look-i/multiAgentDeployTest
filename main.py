@@ -152,11 +152,20 @@ app = create_app()
 
 
 if __name__ == "__main__":
+    import os
+    # 优先使用环境变量中的端口和主机（云厂商通常会注入 PORT）
+    host = os.getenv("HOST", settings.host)
+    port_env = os.getenv("PORT")
+    try:
+        port = int(port_env) if port_env else settings.port
+    except ValueError:
+        port = settings.port
+
     uvicorn.run(
         "main:app",
-        host=settings.host,
-        port=settings.port,
-        reload=settings.debug,
-        reload_dirs=["app"],  # 只监控app目录的文件变化，避免AgentScope的runs目录触发重新加载
-        log_level=settings.log_level.lower()
+        host=host or "0.0.0.0",
+        port=port,
+        reload=True if settings.debug and not os.getenv("PORT") else False,  # 云环境禁用热重载
+        reload_dirs=["app"],  # 只监控app目录的文件变化
+        log_level=settings.log_level.lower(),
     )
