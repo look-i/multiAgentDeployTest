@@ -5,6 +5,7 @@
 主入口文件
 """
 
+import os
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -77,11 +78,15 @@ def create_app() -> FastAPI:
     )
     
     # 添加受信任主机中间件
+    # 云部署环境需要允许所有主机或者配置具体的云服务域名
     if not settings.debug:
-        app.add_middleware(
-            TrustedHostMiddleware,
-            allowed_hosts=["localhost", "127.0.0.1", "*.claudebase.com"]
-        )
+        # 从环境变量获取允许的主机列表，如果未设置则允许所有主机
+        allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
+        if "*" not in allowed_hosts:
+            app.add_middleware(
+                TrustedHostMiddleware,
+                allowed_hosts=allowed_hosts
+            )
     
     # 添加请求处理时间中间件
     @app.middleware("http")
@@ -91,6 +96,18 @@ def create_app() -> FastAPI:
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
         return response
+    
+    # 添加根路由
+    @app.get("/")
+    async def root():
+        """根路径接口，提供API基本信息"""
+        return {
+            "message": "智教魔方 - 多智能体AI教育系统",
+            "version": settings.app_version,
+            "status": "运行中",
+            "api_docs": "/docs",
+            "health_check": f"{settings.api_prefix}/system/health"
+        }
     
     # 注册路由
     app.include_router(api_router)
