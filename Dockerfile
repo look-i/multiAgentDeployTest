@@ -23,8 +23,13 @@ RUN apt-get update && apt-get install -y \
 # 复制依赖文件
 COPY requirements.txt .
 
-# 安装Python依赖，使用官方源保证稳定性
-RUN pip install --no-cache-dir -r requirements.txt
+# 升级pip到最新版本
+RUN pip install --upgrade pip
+
+# 安装Python依赖，使用国内镜像源并增加重试机制
+RUN pip install --no-cache-dir --retries 5 --timeout 300 \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    -r requirements.txt
 
 # 复制项目文件
 COPY . .
