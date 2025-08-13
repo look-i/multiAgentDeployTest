@@ -32,7 +32,7 @@ flake8==6.1.0
 mypy==1.7.1
 
 # 安全和验证
-cryptography==41.0.8
+cryptography==41.0.7
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
 
