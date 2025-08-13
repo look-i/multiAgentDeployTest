@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PORT=80 \
+    PORT=8080 \
     HOST=0.0.0.0
 
 # 安装系统依赖
@@ -37,8 +37,8 @@ RUN useradd --create-home --shell /bin/bash app \
     && chown -R app:app /app
 USER app
 
-# 暴露端口 80（云端部署标准端口）
-EXPOSE 80
+# 暴露端口 8080（使用非特权端口，适配非root用户）
+EXPOSE 8080
 
 # 启动命令
 CMD ["python", "main.py"]
