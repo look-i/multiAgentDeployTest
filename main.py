@@ -153,19 +153,47 @@ app = create_app()
 
 if __name__ == "__main__":
     import os
-    # 优先使用环境变量中的端口和主机（云厂商通常会注入 PORT）
-    host = os.getenv("HOST", settings.host)
-    port_env = os.getenv("PORT")
+    import sys
+    
     try:
-        port = int(port_env) if port_env else settings.port
-    except ValueError:
-        port = settings.port
+        # 优先使用环境变量中的端口和主机（云厂商通常会注入 PORT）
+        host = os.getenv("HOST", settings.host)
+        port_env = os.getenv("PORT")
+        try:
+            port = int(port_env) if port_env else settings.port
+        except ValueError:
+            port = settings.port
+        
+        # 详细启动日志
+        logger.info(f"🚀 启动配置:")
+        logger.info(f"  - 主机: {host or '0.0.0.0'}")
+        logger.info(f"  - 端口: {port} (来源: {'环境变量' if port_env else '配置文件'})")
+        logger.info(f"  - 调试模式: {settings.debug}")
+        logger.info(f"  - 日志级别: {settings.log_level}")
+        logger.info(f"  - API密钥已配置: {'是' if settings.moonshot_api_key else '否'}")
+        
+        # 验证关键配置
+        if not settings.moonshot_api_key:
+            logger.error("❌ MOONSHOT_API_KEY 环境变量未配置")
+            sys.exit(1)
+        
+        if not settings.secret_key:
+            logger.error("❌ SECRET_KEY 环境变量未配置")
+            sys.exit(1)
+        
+        logger.info("✅ 配置验证通过，正在启动服务器...")
 
-    uvicorn.run(
-        "main:app",
-        host=host or "0.0.0.0",
-        port=port,
-        reload=True if settings.debug and not os.getenv("PORT") else False,  # 云环境禁用热重载
-        reload_dirs=["app"],  # 只监控app目录的文件变化
-        log_level=settings.log_level.lower(),
-    )
+        uvicorn.run(
+            "main:app",
+            host=host or "0.0.0.0",
+            port=port,
+            reload=True if settings.debug and not os.getenv("PORT") else False,  # 云环境禁用热重载
+            reload_dirs=["app"] if settings.debug else None,  # 只在调试模式下监控文件变化
+            log_level=settings.log_level.lower(),
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ 应用启动失败: {e}")
+        import traceback
+        logger.error(f"详细错误信息:\n{traceback.format_exc()}")
+        sys.exit(1)
