@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     
     # 应用基础配置
     app_name: str = Field(default="智教魔方 AI教育系统", env="APP_NAME")
+    app_description: str = Field(default="智教魔方 - 广东省中小学AI自学辅导助教系统", env="APP_DESCRIPTION")
     app_version: str = Field(default="1.0.0", env="APP_VERSION")
     debug: bool = Field(default=False, env="DEBUG")
     
