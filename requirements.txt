@@ -32,7 +32,8 @@ flake8==6.1.0
 mypy==1.7.1
 
 # 安全和验证
-cryptography==41.0.8
+# 将 cryptography 从 41.0.8 降到 41.0.7，主要为了兼容国内镜像不同步导致的镜像构建失败问题
+cryptography==41.0.7
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
 
