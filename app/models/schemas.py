@@ -143,9 +143,24 @@ class HealthCheckResponse(BaseResponse):
 # --- 多智能体协作聊天模型 ---
 
 class Message(BaseModel):
-    """单条聊天消息模型"""
+    """单条聊天消息模型
+    说明：role 用于标记消息发送者。用户为 "user"，智能体消息统一标记为各自的名称（例如 ExpertAgent）。
+    """
     role: str = Field(description="消息发送者的角色 (e.g., 'user', 'ExpertAgent')")
     content: str = Field(description="消息内容")
+
+# 新增：自动多轮发言配置
+class AutoConfig(BaseModel):
+    """自动多轮发言配置模型
+    - enabled: 是否启用自动多轮模式
+    - max_rounds: 最大自动发言轮次（限制范围以保护性能）
+    - continue_on_user_input: 用户介入后是否继续自动模式（前端可用来控制交互体验）
+    - stop_keywords: 命中任意关键词即停止自动模式
+    """
+    enabled: bool = Field(default=False, description="是否启用自动多轮模式")
+    max_rounds: int = Field(default=5, ge=1, le=10, description="最大自动发言轮次(1-10)")
+    continue_on_user_input: bool = Field(default=False, description="用户介入后是否继续自动模式")
+    stop_keywords: List[str] = Field(default_factory=lambda: ["停止", "暂停", "结束"], description="停止关键词列表")
 
 class ChatSession(BaseModel):
     """聊天会话状态模型（用于无状态传递）"""
@@ -160,12 +175,19 @@ class ChatSessionInitResponse(BaseResponse):
     opening_remarks: List[Dict[str, Any]] = Field(description="各智能体的开场白")
 
 class CollaborateRequest(BaseModel):
-    """协作聊天请求"""
+    """协作聊天请求
+    说明：保持向后兼容。若不传 auto_config 或 enabled=false，则沿用单轮模式。
+    """
     session_id: str = Field(description="当前会话的唯一标识符")
     history: List[Message] = Field(description="到目前为止的完整对话历史")
-    user_message: Message = Field(description="用户的最新消息")
+    # 将用户消息改为可选：允许仅凭 history 推进协作
+    user_message: Optional[Message] = Field(default=None, description="用户的最新消息（可选；未提供时系统将基于history继续协作）")
+    auto_config: Optional[AutoConfig] = Field(default=None, description="自动多轮发言配置(可选)")
 
 class CollaborateResponse(BaseResponse):
-    """协作聊天响应"""
+    """协作聊天响应
+    - agent_responses: 一个或多个智能体的响应（多轮模式下可能包含多条）
+    - updated_history: 返回包含新响应后的完整对话历史
+    """
     agent_responses: List[Dict[str, Any]] = Field(description="一个或多个智能体的响应")
     updated_history: List[Dict[str, Any]] = Field(description="包含新响应的完整对话历史")

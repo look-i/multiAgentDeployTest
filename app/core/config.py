@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     
     # 应用基础配置
     app_name: str = Field(default="智教魔方 AI教育系统", env="APP_NAME")
-    app_description: str = Field(default="智教魔方 - 广东省中小学AI自学辅导助教系统", env="APP_DESCRIPTION")
     app_version: str = Field(default="1.0.0", env="APP_VERSION")
     debug: bool = Field(default=False, env="DEBUG")
     
@@ -25,7 +24,7 @@ class Settings(BaseSettings):
     moonshot_base_url: str = Field(default="https://api.moonshot.cn/v1", env="MOONSHOT_BASE_URL")
     moonshot_model: str = Field(default="kimi-k2-0711-preview", env="MOONSHOT_MODEL")
     
-    # 安全配置（必须通过环境变量注入，生产环境请使用足够随机的字符串）
+    # 安全配置
     secret_key: str = Field(..., env="SECRET_KEY")
     access_token_expire_minutes: int = Field(default=30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     

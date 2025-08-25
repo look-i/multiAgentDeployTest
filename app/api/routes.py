@@ -245,16 +245,36 @@ async def collaborate_chat(
     动态选择最合适的智能体进行回应。
     """
     try:
-        logger.info(f"处理协作聊天消息: {request.user_message.content[:50]}...")
+        # 健壮日志：兼容可选的 user_message
+        preview = None
+        if request.user_message and isinstance(request.user_message.content, str):
+            preview = request.user_message.content[:50]
+        else:
+            # 从history中反向查找最近一条用户消息用于日志预览
+            for msg in reversed(request.history or []):
+                if isinstance(msg.role, str) and msg.role.strip().lower() == "user":
+                    preview = (msg.content or "")[:50]
+                    break
+        logger.info(f"处理协作聊天消息: {preview if preview else '无用户显式输入，基于历史继续协作'}...")
 
-        # 构建完整的对话历史（包含当前用户消息）
-        full_history = request.history + [request.user_message]
+        # 轻度校验：history与user_message均缺失时，无法推进协作
+        if (not request.history or len(request.history) == 0) and not request.user_message:
+            raise HTTPException(status_code=422, detail="缺少对话历史及用户消息，请先调用 /chat/session/init 或提供 user_message")
+
+        # 构建完整的对话历史（兼容可选user_message）
+        full_history = list(request.history or [])
+        if request.user_message:
+            full_history = full_history + [request.user_message]
         
         # 将Pydantic模型转换为字典列表
         history_dicts = [msg.dict() for msg in full_history]
 
-        # 调用ChatManager的collaborate方法处理消息
-        agent_responses = await chat_manager.collaborate(request.session_id, history_dicts)
+        # 调用ChatManager的collaborate方法处理消息（透传auto_config）
+        agent_responses = await chat_manager.collaborate(
+            session_id=request.session_id, 
+            conversation_history=history_dicts,
+            auto_config=request.auto_config  # 透传自动多轮配置
+        )
 
         # 将智能体响应添加到历史记录中
         updated_history = full_history + [Message(**resp) for resp in agent_responses]
@@ -265,6 +285,8 @@ async def collaborate_chat(
             agent_responses=agent_responses,
             updated_history=[msg.dict() for msg in updated_history]
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"协作聊天失败: {e}")
         raise HTTPException(status_code=500, detail=f"协作聊天失败: {str(e)}")
@@ -486,3 +508,5 @@ def _calculate_answer_confidence(answer: str) -> float:
     
     # 确保在0-1范围内
     return max(0.0, min(1.0, base_confidence))
+
+# 重复定义已删除 - 使用前面的collaborate_chat函数实现

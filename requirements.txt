@@ -21,7 +21,7 @@ aiofiles==23.2.1
 python-dotenv==1.0.0
 
 # 日志和监控
-loguru==0.6.0
+loguru==0.7.2
 prometheus-client==0.19.0
 
 # 开发和测试工具
@@ -32,7 +32,7 @@ flake8==6.1.0
 mypy==1.7.1
 
 # 安全和验证
-cryptography==41.0.7
+cryptography==41.0.8
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
 

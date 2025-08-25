@@ -303,3 +303,5 @@ agentscope.init(
 # ...
 
 8、项目启动时，创建一个“操作跟踪文档”，在此以后，每次对话前需要阅读“操作跟踪文档”再进行思考
+9、前端文件夹路径是E:\EduCube Nexus\Project\multi_agent\frontend\zjmf-front
+10、后端文件夹路径是E:\EduCube Nexus\Project\multi_agent\backend
