@@ -11,12 +11,35 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+# 新增：日志级别规范化工具函数，兼容小写字符串与数字字符串
+# 功能说明：
+# - 如果传入是整数，直接返回（如 10、20 等）
+# - 如果是可转为整数的字符串，转为整数返回（如 "20" -> 20）
+# - 如果是普通字符串，统一转为大写（如 "info" -> "INFO"）
+# - 其他异常情况返回 "INFO" 作为兜底，避免启动报错
+def normalize_level(level: Any) -> Any:
+    try:
+        if isinstance(level, int):
+            return level
+        if isinstance(level, str):
+            s = level.strip()
+            if s.isdigit():
+                return int(s)
+            return s.upper()
+    except Exception:
+        pass
+    return "INFO"
+
 def setup_logging() -> None:
     """设置应用日志配置"""
     
     # 确保日志目录存在
     log_dir = Path(settings.log_file).parent
     log_dir.mkdir(parents=True, exist_ok=True)
+
+    # 规范化应用与 AgentScope 日志级别，避免不合法级别导致 dictConfig 报错
+    app_level = normalize_level(settings.log_level)
+    agentscope_level = normalize_level(settings.agentscope_logging_level)
     
     # 日志配置字典
     logging_config: Dict[str, Any] = {
@@ -35,13 +58,13 @@ def setup_logging() -> None:
         "handlers": {
             "console": {
                 "class": "logging.StreamHandler",
-                "level": settings.log_level,
+                "level": app_level,  # 使用规范化后的级别
                 "formatter": "default",
                 "stream": "ext://sys.stdout"
             },
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
-                "level": settings.log_level,
+                "level": app_level,  # 使用规范化后的级别
                 "formatter": "detailed",
                 "filename": settings.log_file,
                 "maxBytes": 10485760,  # 10MB
@@ -51,28 +74,28 @@ def setup_logging() -> None:
         },
         "loggers": {
             "app": {
-                "level": settings.log_level,
+                "level": app_level,  # 使用规范化后的级别
                 "handlers": ["console", "file"],
                 "propagate": False
             },
             "agentscope": {
-                "level": settings.agentscope_logging_level,
+                "level": agentscope_level,  # 使用规范化后的级别
                 "handlers": ["console", "file"],
                 "propagate": False
             },
             "uvicorn": {
-                "level": "INFO",
+                "level": "INFO",  # 保持内置组件级别为 INFO
                 "handlers": ["console", "file"],
                 "propagate": False
             },
             "fastapi": {
-                "level": "INFO",
+                "level": "INFO",  # 保持内置组件级别为 INFO
                 "handlers": ["console", "file"],
                 "propagate": False
             }
         },
         "root": {
-            "level": settings.log_level,
+            "level": app_level,  # 使用规范化后的级别
             "handlers": ["console", "file"]
         }
     }

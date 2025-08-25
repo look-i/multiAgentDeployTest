@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # 应用基础配置
     app_name: str = Field(default="智教魔方 AI教育系统", env="APP_NAME")
     app_version: str = Field(default="1.0.0", env="APP_VERSION")
+    # 新增应用描述字段：用于 FastAPI 文档与元信息展示，可通过环境变量 APP_DESCRIPTION 覆盖
+    app_description: str = Field(default="EduCube Nexus 多智能体 API 服务", env="APP_DESCRIPTION")
     debug: bool = Field(default=False, env="DEBUG")
     
     # API配置
